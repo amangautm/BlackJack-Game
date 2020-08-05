@@ -2,8 +2,16 @@
 let blackjackGame = {
     'you': { 'scoreSpan': '#your-blackjack-result', 'div': '#your-box', 'score': 0 },
     'dealer': { 'scoreSpan': '#dealer-blackjack-result', 'div': '#dealer-box', 'score': 0 },
-    'cards': ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'],
-    'cardsValue': { '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': [1, 11] },
+    'cards': ['2C', '2D', '2H', '2S', '3C', '3D', '3H', '3S', '4C', '4D', '4H', '4S', '5C', '5D', '5H', '5S',
+        '6C', '6D', '6H', '6S', '7C', '7D', '7H', '7S', '8C', '8D', '8H', '8S', '9C', '9D', '9H', '9S',
+        '10C', '10D', '10H', '10S', 'JC', 'JD', 'JH', 'JS', 'QC', 'QD', 'QH', 'QS', 'KC', 'KD', 'KH', 'KS', 'AC', 'AD', 'AH', 'AS'],
+    'cardsValue': {
+        '2C': 2, '2D': 2, '2H': 2, '2S': 2, '3C': 3, '3D': 3, '3H': 3, '3S': 3, '4C': 4, '4D': 4, '4H': 4, '4S': 4,
+        '5C': 5, '5D': 5, '5H': 5, '5S': 5, '6C': 6, '6D': 6, '6H': 6, '6S': 6, '7C': 7, '7D': 7, '7H': 7, '7S': 7,
+        '8C': 8, '8D': 8, '8H': 8, '8S': 8, '9C': 9, '9D': 9, '9H': 9, '9S': 9, '10C': 10, '10D': 10, '10H': 10, '10S': 10,
+        'JC': 10, 'JD': 10, 'JH': 10, 'JS': 10, 'QC': 10, 'QD': 10, 'QH': 10, 'QS': 10, 'KC': 10, 'KD': 10, 'KH': 10, 'KS': 10,
+        'AC': [1, 11], 'AD': [1, 11], 'AH': [1, 11], 'AS': [1, 11]
+    },
     'wins': 0,
     'losses': 0,
     'draws': 0,
@@ -34,7 +42,7 @@ function blackjackHit() {
         updateScore(card, YOU);
         showScore(YOU);
     }
-    else{
+    else {
         alert('Click Deal Button to start next match');
     }
 }
@@ -70,7 +78,7 @@ function blackjackDeal() {
         //now again turnover should be assigned to false as fresh match starts
         blackjackGame['turnOver'] = false;
     }
-    else{
+    else {
         alert('Click Hit button to start the match');
     }
 }
@@ -81,7 +89,8 @@ async function dealerLogic() {
         blackjackGame['isStand'] = true; //stand mode activated i.e now hit button can't be clicked
 
         //now once a user clicks stand button bot should automatically make it's move
-        while (DEALER['score'] < 16 && blackjackGame['isStand'] == true) {
+        while ((DEALER['score'] < 16 && blackjackGame['isStand'] == true)
+            || (DEALER['score'] < 21 && DEALER['score'] < YOU['score'] && blackjackGame['isStand'] === true && YOU['score'] <=21)) {
             let card = randomCard();
             showCard(card, DEALER);
             updateScore(card, DEALER);
@@ -92,6 +101,9 @@ async function dealerLogic() {
         let winner = computeWinner();
         showResult(winner);
     }
+    else {
+        alert('Click when you are done with your turn! Click Hit for your move or Click Deal to start new match');
+    }
 }
 
 function sleep(ms) {
@@ -99,7 +111,7 @@ function sleep(ms) {
 }
 
 function randomCard() {
-    let randomIndex = Math.floor(Math.random() * 13);
+    let randomIndex = Math.floor(Math.random() * 52);
     return blackjackGame['cards'][randomIndex];
 }
 
@@ -108,13 +120,14 @@ function showCard(card, activePlayer) {
     if (activePlayer['score'] <= 21) {
         let cardImage = document.createElement('img');
         cardImage.src = `static/images/${card}.png`;
+        cardImage.style.height = '180';
         document.querySelector(activePlayer['div']).appendChild(cardImage);
         hitSound.play();
     }
 }
 
 function updateScore(card, activePlayer) {
-    if (card === 'A') {
+    if (card === 'AS' || card === 'AD' || card === 'AH' || card === 'AC') {
         //to give ace score 1 or 11. So if adding 11 keeps score below than 21 then keep it otherwise add 1
         if (activePlayer['score'] + blackjackGame['cardsValue'][card][1] <= 21) {
             activePlayer['score'] += blackjackGame['cardsValue'][card][1];
@@ -188,7 +201,7 @@ function showResult(winner) {
         else {
             document.querySelector('#draws').textContent = blackjackGame['draws'];
             message = 'You Drew!';
-            messageColor = 'yellow';
+            messageColor = '#eef414';
         }
 
         document.querySelector('#blackjack-result').textContent = message;
